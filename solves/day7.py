@@ -24,7 +24,7 @@ cardValues = {
     "8": 8,
     "9": 9,
     "T": 10,
-    "J": 11,
+    "J": 1,
     "Q": 12,
     "K": 13,
     "A": 14
@@ -65,12 +65,44 @@ def get_rank_with_jokers(hand: str):
     for card in hand:
         frequency[cardValues.get(card)] += 1
 
+    noJokers = frequency[cardValues.get("J")]
+    frequency[cardValues.get("J")] = 0
+
+    maxIndex, maxValue = max(enumerate(frequency), key=lambda pair: pair[1])
+
+    if maxValue == 0:
+        # all cards are Jokers
+        return CardRank.FIVE_OF_A_KIND
+
+    frequency[maxIndex] += noJokers
+
+    if max(frequency) == 5:
+        return CardRank.FIVE_OF_A_KIND
+
+    if max(frequency) == 4:
+        return CardRank.FOUR_OF_A_KIND
+
+    if 3 in frequency and 2 in frequency:
+        return CardRank.FULL_HOUSE
+
+    if 3 in frequency:
+        return CardRank.THREE_OF_A_KIND
+
+    noPairs = frequency.count(2)
+    if noPairs == 2:
+        return CardRank.TWO_PAIR
+
+    if noPairs == 1:
+        return CardRank.ONE_PAIR
+
+    return CardRank.HIGH_CARD
+
 
 class CamelCardHand:
     def __init__(self, hand: str, bid: int):
         self.hand = hand
         self.bid = bid
-        self.rank = get_rank(hand)
+        self.rank = get_rank_with_jokers(hand)
 
     def __str__(self):
         return f'Hand {self.hand} of rank {self.rank} with bid {self.bid}'
