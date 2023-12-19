@@ -1,3 +1,5 @@
+import math
+
 def parse_line(line):
     name = line[:3]
     left = line[7:10]
@@ -49,9 +51,10 @@ def solve():
 def get_cycle_length(start: str, instructions: str, nodes: {str: (str, str)}):
     currentNode = start
     stepCount = 0
+    instructionIndex = 0
 
     while True:
-        step = instructions[stepCount % len(instructions)]
+        step = instructions[instructionIndex]
 
         if step == "L":
             currentNode = nodes.get(currentNode)[0]
@@ -59,17 +62,22 @@ def get_cycle_length(start: str, instructions: str, nodes: {str: (str, str)}):
             currentNode = nodes.get(currentNode)[1]
 
         stepCount += 1
-        if currentNode:
-            break
+        instructionIndex += 1
+        if instructionIndex == len(instructions):
+            instructionIndex = 0
 
-    print(stepCount)
+        if currentNode.endswith('Z'):
+            return stepCount
 
 
 def solve_efficient():
     instructions, nodes = get_input()
 
     starts = [name for name in nodes.keys() if name.endswith('A')]
-    cycles = []
+    print(len(starts))
+    cycles = [get_cycle_length(start, instructions, nodes) for start in starts]
+
+    print(math.lcm(*cycles))
 
 
-solve()
+solve_efficient()
